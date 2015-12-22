@@ -1,0 +1,5 @@
+*.pyc
+*.model
+*.state
+dataset/*
+!dataset/.gitkeep
