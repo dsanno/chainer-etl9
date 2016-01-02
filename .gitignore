@@ -1,0 +1,9 @@
+*.pyc
+*.model
+*.state
+dataset/*
+!dataset/.gitkeep
+image/*
+!image/.gitkeep
+model/*
+!model/.gitkeep
