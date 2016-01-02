@@ -28,6 +28,12 @@ After this, you get dataset/etl9g.pkl as training dataset file.
 $ python src/train_dcgan_48px.py -g 0 -o model/dcgan_48px --out_image_dir image/dcgan_48px
 ```
 
+### Generate image using DCGAN model
+
+```
+$ python src/generate_dcgan.py -m model/trained.gen.model -s あいうえお -c utf-8 -o image/gen.png
+```
+
 ## License
 
 MIT
