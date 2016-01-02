@@ -6,7 +6,7 @@ from PIL import Image
 
 import chainer
 from chainer import cuda, Variable, serializers
-from net import Generator
+from net import Generator3 as Generator
 
 parser = argparse.ArgumentParser(description='Chainer training example: MNIST')
 parser.add_argument('--gpu', '-g', default=-1, type=int,
@@ -31,8 +31,9 @@ else:
 
 LATENT_SIZE = 100
 image_len = 100
-#z = Variable(xp.zeros((image_len, LATENT_SIZE)).astype(np.float32))
-z = Variable(xp.random.uniform(-1, 1, (image_len, LATENT_SIZE)).astype(np.float32))
-x = gen(z, train=False)
+z = Variable(xp.zeros((image_len, LATENT_SIZE)).astype(np.float32))
+#z = Variable(xp.random.uniform(-1, 1, (image_len, LATENT_SIZE)).astype(np.float32))
+y = Variable(xp.asarray(xrange(0, 30 * image_len, 30)).astype(np.int32))
+x = gen((z, y), train=False)
 image_array = ((1 - cuda.to_cpu(x.data)) * 255.99).astype(np.uint8).reshape((10, 10, 96, 96)).transpose((0, 2, 1, 3)).reshape((10 * 96, 10 * 96))
 Image.fromarray(image_array).save(args.output)

@@ -3,3 +3,5 @@
 *.state
 dataset/*
 !dataset/.gitkeep
+image_*/*
+dataset_image*/*

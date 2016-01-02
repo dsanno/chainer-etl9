@@ -28,20 +28,6 @@ if args.gpu >= 0:
     cuda.check_cuda_available()
     gpu_device = args.gpu
 
-def load_data(index):
-    datasets = []
-    labelsets = []
-    for i in range(5):
-        path = os.path.join('dataset', 'etl9_{0:02d}.pkl'.format(i + index * 5))
-        print 'Loading {}...'.format(path)
-        with open(path, 'rb') as f:
-            data, labels = pickle.load(f)
-        datasets.append(data.astype(np.float32) / 15)
-        labelsets.append(labels.astype(np.int32))
-    x = np.concatenate(datasets, axis=0)
-    y = np.concatenate(labelsets, axis=0)
-    return (x.reshape(len(x), 1, 127, 128), y)
-
 model = Classifier(EtlNet())
 optimizer = optimizers.MomentumSGD(lr=0.01, momentum=0.9)
 optimizer.setup(model)
@@ -66,7 +52,8 @@ def progress_func(epoch, loss, accuracy, validate_loss, validate_accuracy, test_
 
 for i in range(args.iter):
     print 'epoch: {}'.format(i + 1)
+    perm = np.random.permutation(45)
     for j in range(9):
-        x, y = load_data(j)
+        x, y = data.load(args.dataset_dir, perm[j * 5:(j + 1) * 5])
         Trainer.train(model, x, y, 1, batch_size=100, gpu_device=gpu_device, optimizer=optimizer, callback=progress_func)
-    optimizer.lr *= 0.955
+    optimizer.lr *= 0.912
