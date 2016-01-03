@@ -40,7 +40,7 @@ $ python src/generate_dcgan.py -m model/trained.gen.model -t あいうえお -c 
 ## Generated image sample
 
 Generated after 50 epoch training  
-<img src="//raw.githubusercontent.com/dsanno/chainer-etl9/master/image/training_sample.png" width="640px alt="generated image sample">
+<img src="https://raw.githubusercontent.com/dsanno/chainer-etl9/master/image/training_sample.png" width="640px" alt="generated image sample">
 
 ## License
 
