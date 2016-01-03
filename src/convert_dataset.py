@@ -5,6 +5,7 @@ import sys
 from itertools import chain
 import cPickle as pickle
 from PIL import Image
+from PIL import ImageEnhance
 import StringIO
 import binary
 
@@ -61,7 +62,9 @@ if __name__=='__main__':
         images, labels = read_file(path)
         for image in images:
             with io.BytesIO() as b:
-                Image.fromarray(image.reshape((IN_IMAGE_HEIGHT, IN_IMAGE_WIDTH)) * 17).resize((OUT_IMAGE_HEIGHT, OUT_IMAGE_WIDTH)).save(b, format='png')
+                image_instance = Image.fromarray(image.reshape((IN_IMAGE_HEIGHT, IN_IMAGE_WIDTH)) * 17).resize((OUT_IMAGE_HEIGHT, OUT_IMAGE_WIDTH))
+                # original image contrast is too weak
+                ImageEnhance.Contrast(image_instance).enhance(3).save(b, format='png')
                 image_list.append(b.getvalue())
         lagels_list.append(labels)
     path = os.path.join(out_dir, 'etl9g.pkl')

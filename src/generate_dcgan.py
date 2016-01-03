@@ -6,7 +6,7 @@ from itertools import chain
 from PIL import Image
 
 from chainer import cuda, Variable, serializers
-from net import Generator48 as Generator
+import net
 
 def _flatten(l):
     return list(chain.from_iterable(l))
@@ -19,13 +19,17 @@ parser.add_argument('--gpu', '-g', default=-1, type=int,
                     help='GPU ID (negative value indicates CPU)')
 parser.add_argument('--model', '-m', required=True, type=str,
                     help='model file path')
-parser.add_argument('--string', '-s', required=True, type=str,
+parser.add_argument('--text', '-t', required=True, type=str,
                     help='output string')
 parser.add_argument('--output', '-o', required=True, type=str,
                     help='output image file path')
 parser.add_argument('--character_code', '-c', default='utf-8', type=str,
                     help='character code')
+parser.add_argument('--size', '-s', default=96, type=int, choices=[48, 96],
+                    help='image size')
+
 args = parser.parse_args()
+image_size = args.size
 
 jis_codes = _flatten([
     [ 0x2422, 0x2424, 0x2426, 0x2428 ],
@@ -41,7 +45,10 @@ jis_codes = _flatten([
 codes = map(jiscode_to_unicode, jis_codes)
 code_to_index = dict(zip(codes, range(len(codes))))
 
-gen = Generator()
+if image_size == 48:
+    gen = net.Generator48()
+else:
+    gen = net.Generator()
 serializers.load_hdf5(args.model, gen)
 
 gpu_device = None
@@ -53,10 +60,10 @@ if args.gpu >= 0:
 else:
     xp = np
 
-latent_size = 100
-characters = map(lambda x: code_to_index[ord(x)], args.string.decode(args.character_code))
+latent_size = gen.latent_size
+characters = map(lambda x: code_to_index[ord(x)], args.text.decode(args.character_code))
 y = Variable(xp.asarray(characters).astype(np.int32), volatile=True)
-z = Variable(xp.random.uniform(-1, 1, (len(characters), latent_size)).astype(np.float32), volatile=True)
+z = Variable(xp.repeat(xp.random.uniform(-1, 1, (1, latent_size)), len(characters), axis=0).astype(np.float32), volatile=True)
 x = gen((z, y), train=False)
 n, ch, h, w = x.data.shape
 image_array = ((1 - cuda.to_cpu(x.data)) * 256).clip(0, 255).astype(np.uint8).transpose((2, 0, 3, 1)).reshape((h, w * n))
